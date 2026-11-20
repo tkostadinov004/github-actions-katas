@@ -1,6 +1,13 @@
 name: Main workflow
 on: push
 jobs:
+  Linting:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone down repository
+        uses: actions/checkout@v4
+      - name: Lint code
+        uses: super-linter/super-linter@9.0.0
   Build:
     runs-on: ubuntu-latest
     container: gradle:6-jdk11
