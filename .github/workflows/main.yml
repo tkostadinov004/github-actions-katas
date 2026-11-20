@@ -6,6 +6,9 @@ jobs:
     steps:
       - name: Clone down repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
       - name: Lint code
         uses: super-linter/super-linter@v9.0.0
   Build:
