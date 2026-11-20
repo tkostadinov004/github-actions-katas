@@ -1,0 +1,56 @@
+name: Dev
+on:
+  push:
+    branches:
+      - "dev/**"
+env:
+  github_username: ${{ github.actor }}
+  github_password: ${{ secrets.GITHUB_TOKEN }}
+  GIT_COMMIT: ${{ github.sha }}
+jobs:
+  Build:
+    runs-on: ubuntu-latest
+    container: gradle:6-jdk11
+    steps:
+      - name: Clone down repository
+        uses: actions/checkout@v4    
+        with:
+          fetch-depth: 0
+      - name: Build application
+        run: ci/build-app.sh
+      - name: Test
+        run: ci/unit-test-app.sh
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: main-code
+          path: .
+          include-hidden-files: true
+  Linting:
+    needs: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: main-code
+          path: .
+      - name: Lint code
+        uses: super-linter/super-linter@v9.0.0
+        env:
+          DEFAULT_BRANCH: main
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DISABLE_ERRORS: true
+  Docker-image:
+    needs: Build
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with: 
+          name: main-code
+          path: .
+      - name: Build Docker
+        run: bash ci/build-docker.sh
