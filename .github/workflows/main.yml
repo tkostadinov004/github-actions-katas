@@ -7,10 +7,11 @@ jobs:
       - name: Clone down repository
         uses: actions/checkout@v4
       - name: Lint code
-        uses: super-linter/super-linter@9.0.0
+        uses: super-linter/super-linter@v9.0.0
   Build:
     runs-on: ubuntu-latest
     container: gradle:6-jdk11
+    needs: Linting
     steps:
       - name: Clone down repository
         uses: actions/checkout@v4       
