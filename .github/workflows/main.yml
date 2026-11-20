@@ -1,5 +1,7 @@
 name: Main workflow
-on: push
+on: 
+  push:
+    branches: 'main'
 env:
   github_username: ${{ github.actor }}
   github_password: ${{ secrets.GITHUB_TOKEN }}
