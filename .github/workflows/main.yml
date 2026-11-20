@@ -1,20 +1,9 @@
 name: Main workflow
 on: push
 jobs:
-  Linting:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Clone down repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          persist-credentials: false
-      - name: Lint code
-        uses: super-linter/super-linter@v9.0.0
   Build:
     runs-on: ubuntu-latest
     container: gradle:6-jdk11
-    needs: Linting
     steps:
       - name: Clone down repository
         uses: actions/checkout@v4       
@@ -22,3 +11,23 @@ jobs:
         run: ci/build-app.sh
       - name: Test
         run: ci/unit-test-app.sh
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: main-code
+          path: .
+          include-hidden-files: true
+  Linting:
+    needs: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: main-code
+          path: .
+      - name: Lint code
+        uses: super-linter/super-linter@v9.0.0
+        env:
+          DEFAULT_BRANCH: main
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
